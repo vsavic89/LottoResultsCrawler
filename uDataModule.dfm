@@ -16,4 +16,10 @@ object DataModule1: TDataModule1
     Left = 24
     Top = 56
   end
+  object MyDump1: TMyDump
+    Connection = MyConnection1
+    Objects = [doDatabase, doUsers, doStoredProcs, doTables, doData, doViews, doTriggers]
+    Left = 24
+    Top = 96
+  end
 end

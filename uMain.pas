@@ -79,6 +79,8 @@ begin
     FthreadLottoResultsCrawler.Free;
     FthreadLottoResultsCrawler := nil;
   end;
+
+  Application.Terminate;
 end;
 
 procedure TfrmMain.RefreshStatusMessage;

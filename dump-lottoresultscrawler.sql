@@ -19,6 +19,10 @@
 -- Table structure for table `lottoinfo`
 --
 
+DROP DATABASE IF EXISTS `lottoresultscrawler`;
+CREATE DATABASE `lottoresultscrawler` CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `lottoresultscrawler`;
+
 DROP TABLE IF EXISTS `lottoinfo`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -27,7 +31,7 @@ CREATE TABLE `lottoinfo` (
   `name` varchar(100) NOT NULL,
   `logo` blob,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -43,7 +47,9 @@ CREATE TABLE `lottoresults` (
   `numberset1` varchar(30) NOT NULL,
   `numberset2` varchar(20) NOT NULL,
   `date` date NOT NULL,
-  PRIMARY KEY (`draw`,`lottoinfo_id`)
+  PRIMARY KEY (`draw`,`lottoinfo_id`),
+  KEY `lottoresults_fk` (`lottoinfo_id`),
+  CONSTRAINT `lottoresults_fk` FOREIGN KEY (`lottoinfo_id`) REFERENCES `lottoinfo` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -81,8 +87,11 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertlottoinfo`(in lottoname varchar(100))
 begin
+
 	insert into lottoinfo(name)
+
 	values(lottoname);
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -99,30 +108,31 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `insertlottoresult`(
-	in _name varchar(100), in _draw bigint, in _numberset1 varchar(30), in _numberset2 varchar(20), in _date  date
-	, out _msg varchar(1000)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertlottoresult`(
+	in _name varchar(100), in _draw bigint, in _numberset1 varchar(30), in _numberset2 varchar(20), in _date  date
+	, out _msg varchar(1000)
 )
-begin
-	set _msg = '';
-	if _name<> '' then
-		select @nameExists := count(*) from lottoinfo where name like _name;
-		if (@nameExists = 0) then
-			call insertlottoinfo(_name);
-			set @lottoinfo_id = last_insert_id();
-		else
-			select @lottoinfo_id := id from lottoinfo where name like _name;
-		end if;
-		select @rowExists := count(*) from lottoresults where draw = _draw and lottoinfo_id = @lottoinfo_id;
-		if(@rowExists = 0) then		
-			insert into `lottoresults`(`draw`, `lottoinfo_id`, `numberset1`, `numberset2`, `date`)
-			values(_draw, @lottoinfo_id, _numberset1, _numberset2, _date);
-		else 
-			set _msg = concat('Lotto result with draw:  ', _draw, ' and lottoinfo_id: ', @lottoinfo_id, ' already exist!');
-		end if;		
-	else
-		set _msg = 'Lotto name must not be empty!';
+begin
+	set _msg = '';
+	if _name<> '' then
+		select @nameExists := count(*) from lottoinfo where name like _name;
+		if (@nameExists = 0) then
+			call insertlottoinfo(_name);
+			set @lottoinfo_id = last_insert_id();
+		else
+			select @lottoinfo_id := id from lottoinfo where name like _name;
+		end if;
+		select @rowExists := count(*) from lottoresults where draw = _draw and lottoinfo_id = @lottoinfo_id;
+		if(@rowExists = 0) then		
+			insert into `lottoresults`(`draw`, `lottoinfo_id`, `numberset1`, `numberset2`, `date`)
+			values(_draw, @lottoinfo_id, _numberset1, _numberset2, _date);
+		else 
+			set _msg = concat('Lotto result with draw:  ', _draw, ' and lottoinfo_id: ', @lottoinfo_id, ' already exist!');
+		end if;		
+	else
+		set _msg = 'Lotto name must not be empty!';
 	end if;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -139,4 +149,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-10-07 23:51:01
+-- Dump completed on 2019-10-08 13:12:10

@@ -2,11 +2,17 @@ unit uGlobal;
 
 interface
 
+uses Windows, sysutils;
+
 type TGlobal = class
   private
   public
     function GetMonthNumber(AstrMonthName: string):Integer;
+    function IAmIn64Bits(): Boolean;
 end;
+
+  type
+    WinIsWow64 = function( Handle: THandle; var Iret: BOOL ): Windows.BOOL; stdcall;
 
 implementation
 
@@ -39,6 +45,22 @@ begin
   else if AstrMonthName = 'December' then
     result := 12
   else Result := 0;
+end;
+
+
+function TGlobal.IAmIn64Bits: Boolean;
+var
+  HandleTo64BitsProcess: WinIsWow64;
+  Iret                 : Windows.BOOL;
+begin
+  Result := False;
+  HandleTo64BitsProcess := GetProcAddress(GetModuleHandle('kernel32.dll'), 'IsWow64Process');
+  if Assigned(HandleTo64BitsProcess) then
+  begin
+    if not HandleTo64BitsProcess(GetCurrentProcess, Iret) then
+    Raise Exception.Create('Invalid handle');
+    Result := Iret;
+  end;
 end;
 
 end.

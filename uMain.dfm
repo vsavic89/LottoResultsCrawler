@@ -69,9 +69,6 @@ object frmMain: TfrmMain
     Height = 19
     Panels = <>
     SimplePanel = True
-    ExplicitLeft = 8
-    ExplicitTop = 468
-    ExplicitWidth = 706
   end
   object pnlHours: TPanel
     Left = 0
@@ -86,7 +83,6 @@ object frmMain: TfrmMain
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 2
-    ExplicitTop = -6
     object Label1: TLabel
       Left = 8
       Top = 12
@@ -127,10 +123,6 @@ object frmMain: TfrmMain
       Height = 213
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 72
-      ExplicitTop = 40
-      ExplicitWidth = 185
-      ExplicitHeight = 89
     end
   end
   object DataSource1: TDataSource
